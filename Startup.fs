@@ -8,11 +8,14 @@ open Microsoft.Extensions.DependencyInjection
 type Startup() =
 
     member this.ConfigureServices(services: IServiceCollection) =
-        ()
+        do services.AddMvc() |> ignore
 
     member this.Configure(app: IApplicationBuilder, env: IHostingEnvironment) =
-        if env.IsDevelopment() then app.UseDeveloperExceptionPage() |> ignore
+        if env.IsDevelopment() 
+        then do app.UseDeveloperExceptionPage() |> ignore
+        else do app.UseExceptionHandler() |> ignore
 
-        app.Run(fun context -> context.Response.WriteAsync("Hello World!"))
+        do app.UseMvc() |> ignore
 
-        ()
+        // do app.Run(fun context -> raise (System.Exception("Example exception")))
+        // do app.Run(fun context -> context.Response.WriteAsync("Hello World!"))
