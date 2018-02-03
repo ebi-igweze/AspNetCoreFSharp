@@ -4,11 +4,16 @@ open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Logging
+open Microsoft.AspNetCore.Mvc.Formatters
 
 type Startup() =
 
     member this.ConfigureServices(services: IServiceCollection) =
-        do services.AddMvc() |> ignore
+        // add mvc and xml contract output serializer
+        do services
+           |> fun s -> s.AddMvc()
+           |> fun s -> s.AddMvcOptions(fun opt -> opt.OutputFormatters.Add(XmlDataContractSerializerOutputFormatter()))
+           |> ignore
 
     member this.Configure(app: IApplicationBuilder, env: IHostingEnvironment, loggerFactory: ILoggerFactory) =
         do loggerFactory.AddConsole() |> ignore 
