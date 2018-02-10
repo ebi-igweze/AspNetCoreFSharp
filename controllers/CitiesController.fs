@@ -2,8 +2,9 @@ namespace AspNetCoreFSharp.API.Controllers
 
 open Microsoft.AspNetCore.Mvc
 open CitiesStore
-open Microsoft.AspNetCore.Mvc.ModelBinding
 open Microsoft.AspNetCore.JsonPatch
+open Microsoft.Extensions.Logging
+open MailService
 
 [<Route("api/cities")>]
 type CitiesController() =
@@ -25,7 +26,7 @@ type CitiesController() =
 type CreatedPointOfInterestResponse = { cityId: int; id: int }
 
  [<Route("api/cities")>]
-type PointsOfInterestControler() =
+type PointsOfInterestControler(_logger: ILogger<PointsOfInterestControler>, _mailService: IMailService) =
     inherit Controller()
 
     member private this.validateInput(poiOption: InputDTOs.PointOfInterest option, action: unit -> IActionResult): IActionResult = 
@@ -44,7 +45,13 @@ type PointsOfInterestControler() =
     member this.getPointsOfInterest (cityId: int): IActionResult =
         match CitiesStore.getCity(cityId) with
         | Some city -> this.Ok city.pointsOfInterest :> _
-        | None -> this.NotFound() :> _
+        | None -> 
+            try 
+                failwith "The City was not found, or does not exist"
+            with 
+            | e ->
+                do _logger.LogInformation (sprintf "City with id %i wasn't found when accessing points of interest." cityId)
+                this.StatusCode(500, "A problem happened while handling request.") :> _
         
     [<HttpGet("{cityId}/pointsOfInterest/{id}", Name="GetPointOfInterest")>]
     member this.getPointOfInterest (cityId: int, id: int): IActionResult =
@@ -90,5 +97,9 @@ type PointsOfInterestControler() =
         | None -> this.NotFound() :> _
         | Some poi -> 
             match CitiesStore.removePointOfInterest cityId poi with
-            | Some _ -> this.NoContent () :> _
+            | Some _ ->
+                let message = "The Delete action for Point of Interest was called"
+                let subject = (sprintf "Deleted Point of Interest %s" poi.name)
+                do _mailService.sendMail (subject, message)
+                this.NoContent () :> _
             | None -> this.BadRequest() :> _
