@@ -5,15 +5,18 @@ open CitiesStore
 open Microsoft.AspNetCore.JsonPatch
 open Microsoft.Extensions.Logging
 open MailService
+open AspNetFSharp.DataStore
 
-[<Route("api/cities")>]
-type CitiesController() =
+//[<Route("api/cities")>]
+type CitiesController(ctx: CityInfoContext) =
     inherit Controller()
+    
+    let _ctx = ctx
 
-    [<HttpGet()>]
-    member this.getCities(): IActionResult =
+    [<HttpGet(); Route("api/something")>]
+    static member getCities(): IActionResult =
         let items = CitiesStore.getCities()
-        this.Ok items :> _
+        JsonResult items :> _
 
     [<HttpGet("{id}")>]
     member this.getCity(id): IActionResult =

@@ -6,16 +6,27 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.1" />
     <PackageReference Include="NLog.Extensions.Logging" Version="1.0.0-rtm-rc6" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Services\MailService.fs" />
+    <Compile Include="Entities\Entities.fs" />
     <Compile Include="DataStore\CitiesStore.fs" />
+    <Compile Include="DataStore\DataRepository.fs" />
+
+    <Compile Include="Migrations\20180210182534_initialCreate.fs" />
+    <Compile Include="Migrations\CityInfoContextModelSnapshot.fs" />
+
+    <Compile Include="Services\MailService.fs" />
     <Compile Include="Controllers\CitiesController.fs" />
     <Compile Include="Startup.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
-
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.0.1" />
+    <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.1" />
+   </ItemGroup>
 </Project>
